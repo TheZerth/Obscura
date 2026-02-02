@@ -16,7 +16,10 @@ namespace obscura {
             for (int x = 0; x < screen.cols(); ++x) {
                 term.write(screen.at(x, y).glyph);
             }
-            term.write("\r\n");
+            term.write("\x1b[K"); // clear to end of line
+            if (y + 1 < screen.rows()) {
+                term.write("\r\n");
+            }
         }
         term.flush();
         valid_ = true;

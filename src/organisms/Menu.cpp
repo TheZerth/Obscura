@@ -6,6 +6,13 @@ namespace obscura {
     void Menu::tick(World& world) {
         // Emits text claims for each item, one glyph per column (minimal ASCII).
         for (int i = 0; i < static_cast<int>(items.size()); ++i) {
+            Claim indicator;
+            indicator.x = x - 2;
+            indicator.y = y + i;
+            indicator.glyph = (i == selected) ? ">" : " ";
+            indicator.priority = 20;
+            if (indicator.x >= 0) world.emit(std::move(indicator));
+
             const auto& s = items[i];
             for (int j = 0; j < static_cast<int>(s.size()); ++j) {
                 Claim c;
