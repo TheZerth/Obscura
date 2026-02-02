@@ -1,0 +1,8 @@
+add_executable(demo_menu_ecology demo_menu_ecology.cpp)
+target_link_libraries(demo_menu_ecology PRIVATE obscura)
+
+add_executable(demo_heatmap demo_heatmap.cpp)
+target_link_libraries(demo_heatmap PRIVATE obscura)
+
+add_executable(demo_rules_playground demo_rules_playground.cpp)
+target_link_libraries(demo_rules_playground PRIVATE obscura)

@@ -1,0 +1,8 @@
+//
+// Created by kriordan on 2/2/2026.
+//
+
+#ifndef OBSCURA_INSTRUMENTATION_H
+#define OBSCURA_INSTRUMENTATION_H
+
+#endif //OBSCURA_INSTRUMENTATION_H
