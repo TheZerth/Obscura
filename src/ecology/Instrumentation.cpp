@@ -1,3 +1,2 @@
-//
-// Created by kriordan on 2/2/2026.
-//
+#include "obscura/ecology/Instrumentation.hpp"
+// Intentionally empty for now (header-only struct).

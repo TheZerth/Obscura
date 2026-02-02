@@ -1,3 +1,8 @@
-//
-// Created by kriordan on 2/2/2026.
-//
+#include "obscura/term/Terminal.hpp"
+
+int main() {
+    auto term = obscura::Terminal::open();
+    term.write("Obscura demo_rules_playground (bootstrap)\r\n");
+    term.flush();
+    return 0;
+}

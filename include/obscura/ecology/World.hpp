@@ -1,0 +1,40 @@
+#pragma once
+#include "obscura/ecology/Agent.hpp"
+#include "obscura/ecology/Claim.hpp"
+#include "obscura/ecology/CellSettle.hpp"
+#include "obscura/ecology/Instrumentation.hpp"
+#include "obscura/term/Screen.hpp"
+#include <memory>
+#include <vector>
+
+namespace obscura {
+
+    class World {
+    public:
+        World() = default;
+
+        void resize(int cols, int rows) { screen_.resize(cols, rows); }
+        Screen& screen() noexcept { return screen_; }
+        const Screen& screen() const noexcept { return screen_; }
+
+        Instrumentation& stats() noexcept { return stats_; }
+        const Instrumentation& stats() const noexcept { return stats_; }
+
+        void add_agent(std::unique_ptr<Agent> a);
+        void tick(); // run one tick of emergence
+
+        // Agents call this to propose cell content.
+        void emit(Claim c);
+
+    private:
+        Screen screen_;
+        Instrumentation stats_;
+        CellSettle settle_;
+
+        std::vector<std::unique_ptr<Agent>> agents_;
+
+        // For bootstrap: store claims in a simple vector, then settle by cell.
+        std::vector<Claim> claims_;
+    };
+
+} // namespace obscura

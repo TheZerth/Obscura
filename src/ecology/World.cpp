@@ -1,3 +1,56 @@
-//
-// Created by kriordan on 2/2/2026.
-//
+#include "obscura/ecology/World.hpp"
+#include <unordered_map>
+
+namespace obscura {
+
+    void World::add_agent(std::unique_ptr<Agent> a) {
+        agents_.push_back(std::move(a));
+    }
+
+    void World::emit(Claim c) {
+        claims_.push_back(std::move(c));
+        stats_.claims_emitted++;
+    }
+
+    void World::tick() {
+        stats_.ticks++;
+        stats_.reset_frame();
+        claims_.clear();
+
+        // 1) Agents propose claims
+        for (auto& a : agents_) {
+            if (a) a->tick(*this);
+        }
+
+        // 2) Settle claims by cell (minimal: bucket by (x,y))
+        // For bootstrap we do a simple hash map bucket.
+        struct Key {
+            int x, y;
+            bool operator==(const Key& o) const noexcept { return x == o.x && y == o.y; }
+        };
+        struct KeyHash {
+            std::size_t operator()(const Key& k) const noexcept {
+                return (static_cast<std::size_t>(k.x) << 32) ^ static_cast<std::size_t>(k.y);
+            }
+        };
+
+        std::unordered_map<Key, std::vector<Claim>, KeyHash> buckets;
+        buckets.reserve(claims_.size());
+
+        for (const auto& c : claims_) {
+            if (c.x < 0 || c.y < 0 || c.x >= screen_.cols() || c.y >= screen_.rows()) continue;
+            buckets[{c.x, c.y}].push_back(c);
+        }
+
+        // 3) Write settled cells into screen
+        screen_.clear();
+        for (auto& [key, vec] : buckets) {
+            int idx = settle_.choose(vec);
+            if (idx >= 0) {
+                screen_.put(key.x, key.y, vec[idx].glyph);
+                stats_.cells_written++;
+            }
+        }
+    }
+
+} // namespace obscura
