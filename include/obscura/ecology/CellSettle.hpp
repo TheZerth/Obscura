@@ -4,7 +4,7 @@
 
 namespace obscura {
 
-    // Minimal cell settle: pick the highest-priority claim.
+    // Minimal cell settle: pick the highest-priority claim, then by glyph, y, x.
     class CellSettle {
     public:
         int choose(const std::vector<Claim>& claims) const; // index or -1

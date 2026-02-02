@@ -35,6 +35,57 @@ namespace obscura {
         }
     } // namespace
 
+    std::optional<DecodeResult> decode_key_from_buffer(const unsigned char* data, std::size_t len) {
+        if (data == nullptr || len == 0) return std::nullopt;
+
+        DecodeResult out{};
+        unsigned char ch = data[0];
+        out.consumed = 1;
+
+        if (ch == 0x1b) {
+            if (len >= 2) {
+                unsigned char b1 = data[1];
+                out.consumed = 2;
+                if (b1 == '[') {
+                    if (len >= 3) {
+                        unsigned char b2 = data[2];
+                        out.consumed = 3;
+                        switch (b2) {
+                            case 'A': out.key.key = Key::up; return out;
+                            case 'B': out.key.key = Key::down; return out;
+                            case 'C': out.key.key = Key::right; return out;
+                            case 'D': out.key.key = Key::left; return out;
+                            default: break;
+                        }
+                    }
+                }
+            }
+            out.key.key = Key::esc;
+            return out;
+        }
+
+        if (ch == '\r' || ch == '\n') {
+            out.key.key = Key::enter;
+            return out;
+        }
+        if (ch == 0x7f || ch == 0x08) {
+            out.key.key = Key::backspace;
+            return out;
+        }
+        if (ch == '\t') {
+            out.key.key = Key::tab;
+            return out;
+        }
+
+        if (ch >= 32 && ch <= 126) {
+            out.key.key = Key::unknown;
+            out.key.text = std::string(1, static_cast<char>(ch));
+            return out;
+        }
+
+        return std::nullopt;
+    }
+
     Input::Input(int fd_in, InputConfig cfg) : fd_(fd_in), cfg_(cfg) {
         if (!g_installed) {
             std::signal(SIGWINCH, on_winch);
@@ -73,41 +124,25 @@ namespace obscura {
 
             Event ev;
             ev.type = Event::Type::key;
-
+            unsigned char buf[3];
+            std::size_t len = 0;
+            buf[len++] = ch;
             if (ch == 0x1b) {
                 unsigned char b1 = 0;
-                if (read_byte_with_timeout(fd_, 0, b1) && b1 == '[') {
-                    unsigned char b2 = 0;
-                    if (read_byte_with_timeout(fd_, 10, b2)) {
-                        switch (b2) {
-                            case 'A': ev.key.key = Key::up; return ev;
-                            case 'B': ev.key.key = Key::down; return ev;
-                            case 'C': ev.key.key = Key::right; return ev;
-                            case 'D': ev.key.key = Key::left; return ev;
-                            default: break;
+                if (read_byte_with_timeout(fd_, 0, b1)) {
+                    buf[len++] = b1;
+                    if (b1 == '[') {
+                        unsigned char b2 = 0;
+                        if (read_byte_with_timeout(fd_, 10, b2)) {
+                            buf[len++] = b2;
                         }
                     }
                 }
-                ev.key.key = Key::esc;
-                return ev;
             }
 
-            if (ch == '\r' || ch == '\n') {
-                ev.key.key = Key::enter;
-                return ev;
-            }
-            if (ch == 0x7f || ch == 0x08) {
-                ev.key.key = Key::backspace;
-                return ev;
-            }
-            if (ch == '\t') {
-                ev.key.key = Key::tab;
-                return ev;
-            }
-
-            if (ch >= 32 && ch <= 126) {
-                ev.key.key = Key::unknown;
-                ev.key.text = std::string(1, static_cast<char>(ch));
+            auto decoded = decode_key_from_buffer(buf, len);
+            if (decoded) {
+                ev.key = decoded->key;
                 return ev;
             }
         }

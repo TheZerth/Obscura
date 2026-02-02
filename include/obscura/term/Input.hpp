@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <cstddef>
 #include <optional>
 #include <string>
 
@@ -34,6 +35,13 @@ namespace obscura {
         KeyEvent key;
         ResizeEvent resize;
     };
+
+    struct DecodeResult {
+        KeyEvent key;
+        std::size_t consumed = 0;
+    };
+
+    std::optional<DecodeResult> decode_key_from_buffer(const unsigned char* data, std::size_t len);
 
     struct InputConfig {
         bool utf8 = true;
