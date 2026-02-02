@@ -13,8 +13,8 @@ namespace obscura {
     }
 
     void World::tick() {
-        stats_.ticks++;
         stats_.reset_frame();
+        stats_.ticks++;
         claims_.clear();
 
         // 1) Agents propose claims
@@ -45,6 +45,7 @@ namespace obscura {
         // 3) Write settled cells into screen
         screen_.clear();
         for (auto& [key, vec] : buckets) {
+            if (vec.size() > 1) stats_.contention_cells++;
             int idx = settle_.choose(vec);
             if (idx >= 0) {
                 screen_.put(key.x, key.y, vec[idx].glyph);

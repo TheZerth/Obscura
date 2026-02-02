@@ -47,6 +47,8 @@ namespace obscura {
     private:
         int fd_ = -1;
         InputConfig cfg_;
+        int last_cols_ = 0;
+        int last_rows_ = 0;
     };
 
 } // namespace obscura

@@ -8,7 +8,9 @@ namespace obscura {
         // Minimal renderer: clear + print glyphs row by row.
         // NOTE: This is not efficient yet; it’s only for bootstrap compilation.
         term.write("\x1b[H");      // cursor home
-        term.write("\x1b[2J");     // clear screen
+        if (cfg_.full_redraw && !valid_) {
+            term.write("\x1b[2J"); // clear screen
+        }
 
         for (int y = 0; y < screen.rows(); ++y) {
             for (int x = 0; x < screen.cols(); ++x) {

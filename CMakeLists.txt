@@ -38,10 +38,13 @@ endif()
 
 if (NOT MSVC)
     target_compile_options(obscura PRIVATE -Wall -Wextra -Wpedantic)
-    if (OBSCURA_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_compile_options(obscura PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-        target_link_options(obscura PRIVATE -fsanitize=address,undefined)
-    endif()
+endif()
+
+if (OBSCURA_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_library(obscura_sanitizers INTERFACE)
+    target_compile_options(obscura_sanitizers INTERFACE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(obscura_sanitizers INTERFACE -fsanitize=address,undefined)
+    target_link_libraries(obscura PUBLIC obscura_sanitizers)
 endif()
 
 if (OBSCURA_BUILD_DEMOS)
