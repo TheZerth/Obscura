@@ -29,5 +29,10 @@ int main() {
     run_local_view_glyph_at(state);
     run_local_view_neighbours(state);
 
-    return state.failures == 0 ? 0 : 1;
+    if (state.failures == 0) {
+        std::cout << "PASS: " << state.checks << " checks\n";
+        return 0;
+    }
+    std::cout << "FAIL: " << state.failures << " of " << state.checks << " checks failed\n";
+    return 1;
 }
