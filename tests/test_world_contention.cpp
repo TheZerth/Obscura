@@ -66,7 +66,7 @@ namespace {
 void run_world_contention_single_cell(TestState& state) {
     obscura::World world;
     world.resize(10, 10);
-    world.add_agent(std::make_unique<EmitAgent>());
+    (void)world.add_agent(std::make_unique<EmitAgent>());
     world.tick();
     CHECK(state, world.stats().contention_cells == 1);
 }
@@ -74,7 +74,7 @@ void run_world_contention_single_cell(TestState& state) {
 void run_world_contention_multiple_cells(TestState& state) {
     obscura::World world;
     world.resize(10, 10);
-    world.add_agent(std::make_unique<DoubleContentionAgent>());
+    (void)world.add_agent(std::make_unique<DoubleContentionAgent>());
     world.tick();
     CHECK(state, world.stats().contention_cells == 2);
 }

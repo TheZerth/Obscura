@@ -5,7 +5,7 @@ namespace obscura {
 
     ViewSpec Statusline::view_spec(WorldSize world) const {
         int row = world.rows - 1;
-        int width = static_cast<int>(text.size());
+        int width = static_cast<int>((prefix + text + suffix).size());
         if (width < 1) width = 1;
         int cx = width / 2;
         int radius = std::max(1, width / 2);
@@ -13,14 +13,18 @@ namespace obscura {
     }
 
     void Statusline::tick(const LocalView& view, std::vector<Claim>& out_claims) {
+        tick_counter_++;
+        if (update_interval > 1 && (tick_counter_ % update_interval) != 0) return;
+
         int row = view.center_y();
         if (row < 0) return;
 
-        for (int i = 0; i < static_cast<int>(text.size()); ++i) {
+        std::string full = prefix + text + suffix;
+        for (int i = 0; i < static_cast<int>(full.size()); ++i) {
             Claim c;
             c.x = i;
             c.y = row;
-            c.glyph = std::string(1, text[static_cast<size_t>(i)]);
+            c.glyph = std::string(1, full[static_cast<size_t>(i)]);
             c.priority = priority;
             out_claims.push_back(std::move(c));
         }

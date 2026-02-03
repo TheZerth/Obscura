@@ -17,12 +17,16 @@ add_library(obscura
 
         src/ecology/World.cpp
         src/ecology/Scheduler.cpp
+        src/ecology/Population.cpp
         src/ecology/CellSettle.cpp
         src/ecology/Instrumentation.cpp
 
         src/organisms/Menu.cpp
         src/organisms/Box.cpp
         src/organisms/Statusline.cpp
+        src/organisms/NoiseAgent.cpp
+        src/organisms/BlinkAgent.cpp
+        src/organisms/TrailAgent.cpp
 )
 
 target_include_directories(obscura PUBLIC

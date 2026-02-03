@@ -34,3 +34,13 @@ world.set_scheduler(std::move(scheduler));
 ```
 
 Instrumentation tracks claim/time budget hits, skips, and per-agent totals (including longest tick time) so you can observe how constraints reshape emergent behavior.
+
+### Diverse agents and populations
+
+Obscura now supports heterogeneous agent archetypes you can spawn at runtime:
+
+* `NoiseAgent` emits random glyphs within a region (density, glyph set, update interval).
+* `BlinkAgent` toggles a filled region on/off with configurable durations.
+* `TrailAgent` moves and leaves a wrapping trail that reacts to local contention.
+
+Use `PopulationManager` to spawn random variants of these agents from parameter ranges and to remove agents by ID. See `demo_diversity` for an interactive showcase (`n`/`b`/`t` to add, `r` to remove last, `c` to clear).

@@ -12,7 +12,7 @@ namespace obscura {
         scheduler_ = scheduler ? std::move(scheduler) : std::make_unique<RandomScheduler>();
     }
 
-    void World::add_agent(std::unique_ptr<Agent> a) {
+    AgentId World::add_agent(std::unique_ptr<Agent> a) {
         auto* raw = a.get();
         agents_.push_back(std::move(a));
         stats_.ensure_agents(agents_.size());
@@ -23,6 +23,37 @@ namespace obscura {
             const char* n = raw->name();
             a_stats.name = n ? n : "Agent";
         }
+        a_stats.active = true;
+        if (agent_ids_.size() < agents_.size()) agent_ids_.resize(agents_.size());
+        agent_ids_[idx] = a_stats.id;
+        return a_stats.id;
+    }
+
+    bool World::remove_agent(AgentId id) {
+        for (std::size_t i = 0; i < agent_ids_.size(); ++i) {
+            if (agent_ids_[i] != id) continue;
+            agents_[i].reset();
+            if (i < stats_.agents.size()) stats_.agents[i].active = false;
+            agent_ids_[i] = 0;
+            return true;
+        }
+        return false;
+    }
+
+    Agent* World::agent_by_id(AgentId id) {
+        for (std::size_t i = 0; i < agent_ids_.size(); ++i) {
+            if (agent_ids_[i] != id) continue;
+            return agents_[i].get();
+        }
+        return nullptr;
+    }
+
+    const Agent* World::agent_by_id(AgentId id) const {
+        for (std::size_t i = 0; i < agent_ids_.size(); ++i) {
+            if (agent_ids_[i] != id) continue;
+            return agents_[i].get();
+        }
+        return nullptr;
     }
 
     void World::emit(Claim c) {

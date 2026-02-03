@@ -9,6 +9,7 @@ namespace obscura {
     struct AgentStats {
         std::uint64_t id = 0;
         std::string name;
+        bool active = true;
         std::uint64_t ticks = 0;
         std::uint64_t claims_generated = 0;
         std::uint64_t claims_accepted = 0;

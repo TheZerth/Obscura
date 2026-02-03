@@ -72,7 +72,7 @@ void run_scheduler_shuffle_order(TestState& state) {
         auto agent = std::make_unique<OrderAgent>();
         agent->id = i;
         agent->order = &order;
-        world.add_agent(std::move(agent));
+        (void)world.add_agent(std::move(agent));
     }
 
     std::vector<int> first;
@@ -97,7 +97,7 @@ void run_scheduler_claim_budget(TestState& state) {
 
     auto agent = std::make_unique<ClaimSpamAgent>();
     agent->count = 10;
-    world.add_agent(std::move(agent));
+    (void)world.add_agent(std::move(agent));
 
     world.tick();
 
@@ -124,7 +124,7 @@ void run_scheduler_time_budget(TestState& state) {
 
     auto agent = std::make_unique<SlowAgent>();
     agent->sleep_ms = 3;
-    world.add_agent(std::move(agent));
+    (void)world.add_agent(std::move(agent));
 
     world.tick();
 
@@ -151,7 +151,7 @@ void run_scheduler_failure_rate(TestState& state) {
 
     auto agent = std::make_unique<ClaimSpamAgent>();
     agent->count = 5;
-    world.add_agent(std::move(agent));
+    (void)world.add_agent(std::move(agent));
 
     world.tick();
 

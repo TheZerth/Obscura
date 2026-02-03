@@ -17,6 +17,8 @@ void run_scheduler_shuffle_order(TestState& state);
 void run_scheduler_claim_budget(TestState& state);
 void run_scheduler_time_budget(TestState& state);
 void run_scheduler_failure_rate(TestState& state);
+void run_population_random_bounds(TestState& state);
+void run_population_remove_agents(TestState& state);
 
 int main() {
     TestState state;
@@ -38,6 +40,8 @@ int main() {
     run_scheduler_claim_budget(state);
     run_scheduler_time_budget(state);
     run_scheduler_failure_rate(state);
+    run_population_random_bounds(state);
+    run_population_remove_agents(state);
 
     if (state.failures == 0) {
         std::cout << "PASS: " << state.checks << " checks\n";

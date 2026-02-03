@@ -26,7 +26,10 @@ namespace obscura {
         const Scheduler& scheduler() const noexcept { return *scheduler_; }
         void set_scheduler(std::unique_ptr<Scheduler> scheduler);
 
-        void add_agent(std::unique_ptr<Agent> a);
+        AgentId add_agent(std::unique_ptr<Agent> a);
+        bool remove_agent(AgentId id);
+        Agent* agent_by_id(AgentId id);
+        const Agent* agent_by_id(AgentId id) const;
         void tick(); // run one tick of emergence
 
     private:
@@ -39,6 +42,7 @@ namespace obscura {
 
         std::vector<std::unique_ptr<Agent>> agents_;
         std::uint64_t next_agent_id_ = 1;
+        std::vector<AgentId> agent_ids_;
 
         // For bootstrap: store claims in a simple vector, then settle by cell.
         std::vector<Claim> claims_;

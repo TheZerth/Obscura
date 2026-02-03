@@ -20,19 +20,19 @@ int main() {
 
     auto box = std::make_unique<obscura::Box>();
     box->x = 1; box->y = 1; box->w = 30; box->h = 10; box->priority = 0;
-    world.add_agent(std::move(box));
+    (void)world.add_agent(std::move(box));
 
     auto menu = std::make_unique<obscura::Menu>();
     menu->x = 3; menu->y = 3;
     menu->items = {"Start", "Settings", "About", "Quit"};
     menu->selected = 0;
     auto* menu_ptr = menu.get();
-    world.add_agent(std::move(menu));
+    (void)world.add_agent(std::move(menu));
 
     auto status = std::make_unique<obscura::Statusline>();
     status->text = "Obscura demo_menu_ecology (bootstrap)";
     auto* status_ptr = status.get();
-    world.add_agent(std::move(status));
+    (void)world.add_agent(std::move(status));
 
     bool running = true;
     while (running) {
