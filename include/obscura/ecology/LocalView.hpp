@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace obscura {
@@ -17,25 +18,38 @@ namespace obscura {
         int center_y() const noexcept { return center_y_; }
         int radius() const noexcept { return radius_; }
 
+        // Note: returned string_view is valid only until the end of the current tick.
         std::string_view glyph_at(int x, int y) const {
             if (!in_view_(x, y) || !in_bounds_(x, y)) return default_glyph_;
             return screen_->at(x, y).glyph;
         }
 
-        std::vector<std::string_view> neighbours(int r) const {
+        // Calls fn(x, y, glyph) for each cell in the neighbourhood (row-major).
+        // Note: glyph string_views are valid only until the end of the current tick.
+        template <class F>
+        void for_each_neighbour(int r, F&& fn) const {
             int rr = std::max(0, r);
             if (rr > radius_) rr = radius_;
-            std::vector<std::string_view> out;
-            out.reserve(static_cast<size_t>((2 * rr + 1) * (2 * rr + 1)));
             if (rr == 0) {
-                out.push_back(glyph_at(center_x_, center_y_));
-                return out;
+                std::forward<F>(fn)(center_x_, center_y_, glyph_at(center_x_, center_y_));
+                return;
             }
             for (int y = center_y_ - rr; y <= center_y_ + rr; ++y) {
                 for (int x = center_x_ - rr; x <= center_x_ + rr; ++x) {
-                    out.push_back(glyph_at(x, y));
+                    std::forward<F>(fn)(x, y, glyph_at(x, y));
                 }
             }
+        }
+
+        // Note: returned string_views are valid only until the end of the current tick.
+        std::vector<std::string_view> neighbours(int r) const {
+            std::vector<std::string_view> out;
+            int rr = std::max(0, r);
+            if (rr > radius_) rr = radius_;
+            out.reserve(static_cast<size_t>((2 * rr + 1) * (2 * rr + 1)));
+            for_each_neighbour(rr, [&](int, int, std::string_view glyph) {
+                out.push_back(glyph);
+            });
             return out;
         }
 

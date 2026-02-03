@@ -27,3 +27,19 @@ void run_local_view_neighbours(TestState& state) {
     CHECK(state, neigh[3] == "L");
     CHECK(state, neigh[5] == "R");
 }
+
+void run_local_view_for_each_neighbour(TestState& state) {
+    obscura::Screen screen(5, 5);
+    screen.put(2, 2, "X");
+    screen.put(1, 2, "L");
+    screen.put(3, 2, "R");
+
+    obscura::LocalView view(screen, 2, 2, 1);
+    auto neigh = view.neighbours(1);
+    std::vector<std::string_view> via_callback;
+    via_callback.reserve(neigh.size());
+    view.for_each_neighbour(1, [&](int, int, std::string_view glyph) {
+        via_callback.push_back(glyph);
+    });
+    CHECK(state, via_callback == neigh);
+}

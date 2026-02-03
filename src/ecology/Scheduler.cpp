@@ -50,7 +50,7 @@ namespace obscura {
         auto& stats = world.stats();
         stats.ensure_agents(agents.size());
 
-        WorldSize size{world.screen().cols(), world.screen().rows()};
+        WorldSize size = world.size();
         shuffle_order_(agents.size());
 
         for (std::size_t idx : order_) {

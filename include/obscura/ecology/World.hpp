@@ -16,8 +16,8 @@ namespace obscura {
         explicit World(std::unique_ptr<Scheduler> scheduler);
 
         void resize(int cols, int rows) { screen_.resize(cols, rows); }
-        Screen& screen() noexcept { return screen_; }
         const Screen& screen() const noexcept { return screen_; }
+        WorldSize size() const noexcept { return WorldSize{screen_.cols(), screen_.rows()}; }
 
         Instrumentation& stats() noexcept { return stats_; }
         const Instrumentation& stats() const noexcept { return stats_; }
@@ -29,10 +29,9 @@ namespace obscura {
         void add_agent(std::unique_ptr<Agent> a);
         void tick(); // run one tick of emergence
 
-        // Optional: external systems may propose cell content.
+    private:
         void emit(Claim c);
 
-    private:
         Screen screen_;
         Instrumentation stats_;
         CellSettle settle_;

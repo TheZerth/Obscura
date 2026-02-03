@@ -12,6 +12,7 @@ void run_world_contention_single_cell(TestState& state);
 void run_world_contention_multiple_cells(TestState& state);
 void run_local_view_glyph_at(TestState& state);
 void run_local_view_neighbours(TestState& state);
+void run_local_view_for_each_neighbour(TestState& state);
 void run_scheduler_shuffle_order(TestState& state);
 void run_scheduler_claim_budget(TestState& state);
 void run_scheduler_time_budget(TestState& state);
@@ -32,6 +33,7 @@ int main() {
     run_world_contention_multiple_cells(state);
     run_local_view_glyph_at(state);
     run_local_view_neighbours(state);
+    run_local_view_for_each_neighbour(state);
     run_scheduler_shuffle_order(state);
     run_scheduler_claim_budget(state);
     run_scheduler_time_budget(state);
