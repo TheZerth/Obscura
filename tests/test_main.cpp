@@ -10,6 +10,8 @@ void run_input_decode_printable(TestState& state);
 
 void run_world_contention_single_cell(TestState& state);
 void run_world_contention_multiple_cells(TestState& state);
+void run_local_view_glyph_at(TestState& state);
+void run_local_view_neighbours(TestState& state);
 
 int main() {
     TestState state;
@@ -24,6 +26,8 @@ int main() {
 
     run_world_contention_single_cell(state);
     run_world_contention_multiple_cells(state);
+    run_local_view_glyph_at(state);
+    run_local_view_neighbours(state);
 
     return state.failures == 0 ? 0 : 1;
 }

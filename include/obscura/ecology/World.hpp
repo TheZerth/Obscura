@@ -23,7 +23,7 @@ namespace obscura {
         void add_agent(std::unique_ptr<Agent> a);
         void tick(); // run one tick of emergence
 
-        // Agents call this to propose cell content.
+        // Optional: external systems may propose cell content.
         void emit(Claim c);
 
     private:

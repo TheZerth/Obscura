@@ -1,4 +1,6 @@
 #include "obscura/ecology/World.hpp"
+#include "obscura/ecology/LocalView.hpp"
+#include <iterator>
 #include <unordered_map>
 
 namespace obscura {
@@ -18,8 +20,17 @@ namespace obscura {
         claims_.clear();
 
         // 1) Agents propose claims
+        WorldSize size{screen_.cols(), screen_.rows()};
         for (auto& a : agents_) {
-            if (a) a->tick(*this);
+            if (!a) continue;
+            ViewSpec spec = a->view_spec(size);
+            LocalView view(screen_, spec.center_x, spec.center_y, spec.radius);
+            std::vector<Claim> agent_claims;
+            a->tick(view, agent_claims);
+            stats_.claims_emitted += static_cast<std::uint64_t>(agent_claims.size());
+            claims_.insert(claims_.end(),
+                           std::make_move_iterator(agent_claims.begin()),
+                           std::make_move_iterator(agent_claims.end()));
         }
 
         // 2) Settle claims by cell (minimal: bucket by (x,y))

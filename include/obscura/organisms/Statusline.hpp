@@ -10,7 +10,8 @@ namespace obscura {
         std::string text = "Obscura";
         int priority = 5;
 
-        void tick(World& world) override;
+        ViewSpec view_spec(WorldSize world) const override;
+        void tick(const LocalView& view, std::vector<Claim>& out_claims) override;
     };
 
 } // namespace obscura

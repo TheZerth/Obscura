@@ -1,9 +1,16 @@
 #include "obscura/organisms/Box.hpp"
-#include "obscura/ecology/World.hpp"
+#include <algorithm>
 
 namespace obscura {
 
-    void Box::tick(World& world) {
+    ViewSpec Box::view_spec(WorldSize) const {
+        int cx = x + w / 2;
+        int cy = y + h / 2;
+        int radius = std::max(1, std::max(w, h) / 2);
+        return ViewSpec{cx, cy, radius};
+    }
+
+    void Box::tick(const LocalView&, std::vector<Claim>& out_claims) {
         if (w < 2 || h < 2) return;
 
         auto emit_char = [&](int px, int py, char ch) {
@@ -12,7 +19,7 @@ namespace obscura {
             c.y = py;
             c.glyph = std::string(1, ch);
             c.priority = priority;
-            world.emit(std::move(c));
+            out_claims.push_back(std::move(c));
         };
 
         // Corners
