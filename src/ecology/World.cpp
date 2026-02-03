@@ -13,13 +13,22 @@ namespace obscura {
     }
 
     void World::add_agent(std::unique_ptr<Agent> a) {
+        auto* raw = a.get();
         agents_.push_back(std::move(a));
         stats_.ensure_agents(agents_.size());
+        std::size_t idx = agents_.size() - 1;
+        auto& a_stats = stats_.agents[idx];
+        a_stats.id = next_agent_id_++;
+        if (raw) {
+            const char* n = raw->name();
+            a_stats.name = n ? n : "Agent";
+        }
     }
 
     void World::emit(Claim c) {
         claims_.push_back(std::move(c));
-        stats_.claims_emitted++;
+        stats_.claims_generated++;
+        stats_.claims_accepted++;
     }
 
     void World::tick() {
@@ -31,7 +40,6 @@ namespace obscura {
         if (scheduler_) {
             scheduler_->execute(*this, agents_, claims_);
         }
-        stats_.claims_emitted = static_cast<std::uint64_t>(claims_.size());
 
         // 2) Settle claims by cell (minimal: bucket by (x,y))
         // For bootstrap we do a simple hash map bucket.

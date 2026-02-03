@@ -47,6 +47,7 @@ namespace obscura {
         SchedulerConfig config_{};
         std::vector<std::size_t> order_;
         std::vector<std::size_t> last_order_;
+        std::vector<Claim> scratch_claims_;
 
         bool should_fail_();
         void shuffle_order_(std::size_t count);

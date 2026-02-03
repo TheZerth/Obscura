@@ -37,6 +37,9 @@ namespace obscura {
             for (int i = 0; i < config_.shuffle_retries && order_ == last_order_; ++i) {
                 std::shuffle(order_.begin(), order_.end(), rng_);
             }
+            if (order_ == last_order_ && order_.size() > 1) {
+                std::swap(order_[0], order_[1]);
+            }
         }
         last_order_ = order_;
     }
@@ -64,9 +67,9 @@ namespace obscura {
             ViewSpec spec = agent->view_spec(size);
             LocalView view(world.screen(), spec.center_x, spec.center_y, spec.radius);
 
-            std::vector<Claim> agent_claims;
+            scratch_claims_.clear();
             auto start = std::chrono::steady_clock::now();
-            agent->tick(view, agent_claims);
+            agent->tick(view, scratch_claims_);
             auto end = std::chrono::steady_clock::now();
 
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -75,28 +78,38 @@ namespace obscura {
             a_stats.ticks++;
             if (duration_us > a_stats.max_tick_time_us) a_stats.max_tick_time_us = duration_us;
 
+            std::size_t generated = scratch_claims_.size();
+            a_stats.claims_generated += generated;
+            stats.claims_generated += generated;
+
             bool time_over = config_.max_tick_duration.count() > 0 && duration > config_.max_tick_duration;
             if (time_over) {
                 a_stats.time_budget_hits++;
                 stats.time_budget_hits++;
             }
 
-            std::size_t accepted = agent_claims.size();
+            std::size_t accepted = generated;
             if (config_.max_claims_per_tick > 0 && accepted > config_.max_claims_per_tick) {
+                std::size_t dropped = accepted - config_.max_claims_per_tick;
                 accepted = config_.max_claims_per_tick;
                 a_stats.claim_budget_hits++;
                 stats.claim_budget_hits++;
+                a_stats.claims_dropped_claim_budget += dropped;
+                stats.claims_dropped_claim_budget += dropped;
             }
 
             if (time_over) {
+                a_stats.claims_dropped_time_budget += accepted;
+                stats.claims_dropped_time_budget += accepted;
                 accepted = 0;
             }
 
-            a_stats.claims_emitted += accepted;
+            a_stats.claims_accepted += accepted;
+            stats.claims_accepted += accepted;
             if (accepted == 0) continue;
 
-            auto begin_it = agent_claims.begin();
-            auto end_it = agent_claims.begin() + static_cast<std::ptrdiff_t>(accepted);
+            auto begin_it = scratch_claims_.begin();
+            auto end_it = scratch_claims_.begin() + static_cast<std::ptrdiff_t>(accepted);
             out_claims.insert(out_claims.end(),
                               std::make_move_iterator(begin_it),
                               std::make_move_iterator(end_it));

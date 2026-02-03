@@ -13,6 +13,7 @@ namespace obscura {
         int y = 2;
         int selected = 0;
 
+        const char* name() const noexcept override { return "Menu"; }
         ViewSpec view_spec(WorldSize world) const override;
         void tick(const LocalView& view, std::vector<Claim>& out_claims) override;
     };

@@ -12,6 +12,7 @@ namespace obscura {
         int h = 8;
         int priority = 0;
 
+        const char* name() const noexcept override { return "Box"; }
         ViewSpec view_spec(WorldSize world) const override;
         void tick(const LocalView& view, std::vector<Claim>& out_claims) override;
     };

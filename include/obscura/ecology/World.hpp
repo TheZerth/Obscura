@@ -4,6 +4,7 @@
 #include "obscura/ecology/Instrumentation.hpp"
 #include "obscura/ecology/Scheduler.hpp"
 #include "obscura/term/Screen.hpp"
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -38,6 +39,7 @@ namespace obscura {
         std::unique_ptr<Scheduler> scheduler_;
 
         std::vector<std::unique_ptr<Agent>> agents_;
+        std::uint64_t next_agent_id_ = 1;
 
         // For bootstrap: store claims in a simple vector, then settle by cell.
         std::vector<Claim> claims_;

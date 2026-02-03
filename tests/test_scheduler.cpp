@@ -64,6 +64,7 @@ void run_scheduler_shuffle_order(TestState& state) {
     cfg.failure_rate = 0.0;
     cfg.max_claims_per_tick = 0;
     cfg.max_tick_duration = std::chrono::microseconds(0);
+    cfg.shuffle_retries = 1;
     world.scheduler().set_config(cfg);
 
     std::vector<int> order;
@@ -74,22 +75,14 @@ void run_scheduler_shuffle_order(TestState& state) {
         world.add_agent(std::move(agent));
     }
 
-    std::vector<std::vector<int>> sequences;
-    for (int t = 0; t < 6; ++t) {
-        order.clear();
-        world.tick();
-        sequences.push_back(order);
-    }
+    std::vector<int> first;
+    order.clear();
+    world.tick();
+    first = order;
 
-    bool varied = false;
-    for (std::size_t i = 1; i < sequences.size(); ++i) {
-        if (sequences[i] != sequences[0]) {
-            varied = true;
-            break;
-        }
-    }
-
-    CHECK(state, varied);
+    order.clear();
+    world.tick();
+    CHECK(state, order != first);
 }
 
 void run_scheduler_claim_budget(TestState& state) {
@@ -108,11 +101,15 @@ void run_scheduler_claim_budget(TestState& state) {
 
     world.tick();
 
-    CHECK(state, world.stats().claims_emitted == 3);
+    CHECK(state, world.stats().claims_generated == 10);
+    CHECK(state, world.stats().claims_accepted == 3);
+    CHECK(state, world.stats().claims_dropped_claim_budget == 7);
     CHECK(state, world.stats().claim_budget_hits == 1);
     CHECK(state, world.stats().agents.size() == 1);
     CHECK(state, world.stats().agents[0].claim_budget_hits == 1);
-    CHECK(state, world.stats().agents[0].claims_emitted == 3);
+    CHECK(state, world.stats().agents[0].claims_generated == 10);
+    CHECK(state, world.stats().agents[0].claims_accepted == 3);
+    CHECK(state, world.stats().agents[0].claims_dropped_claim_budget == 7);
 }
 
 void run_scheduler_time_budget(TestState& state) {
@@ -131,10 +128,15 @@ void run_scheduler_time_budget(TestState& state) {
 
     world.tick();
 
+    CHECK(state, world.stats().claims_generated == 1);
+    CHECK(state, world.stats().claims_accepted == 0);
+    CHECK(state, world.stats().claims_dropped_time_budget == 1);
     CHECK(state, world.stats().time_budget_hits == 1);
     CHECK(state, world.stats().agents.size() == 1);
     CHECK(state, world.stats().agents[0].time_budget_hits == 1);
-    CHECK(state, world.stats().claims_emitted == 0);
+    CHECK(state, world.stats().agents[0].claims_generated == 1);
+    CHECK(state, world.stats().agents[0].claims_accepted == 0);
+    CHECK(state, world.stats().agents[0].claims_dropped_time_budget == 1);
 }
 
 void run_scheduler_failure_rate(TestState& state) {
@@ -153,8 +155,9 @@ void run_scheduler_failure_rate(TestState& state) {
 
     world.tick();
 
+    CHECK(state, world.stats().claims_generated == 0);
+    CHECK(state, world.stats().claims_accepted == 0);
     CHECK(state, world.stats().skipped_failures == 1);
     CHECK(state, world.stats().agents.size() == 1);
     CHECK(state, world.stats().agents[0].skipped_failures == 1);
-    CHECK(state, world.stats().claims_emitted == 0);
 }

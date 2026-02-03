@@ -39,10 +39,13 @@ int main() {
         const auto& stats = world.stats();
         std::ostringstream oss;
         oss << "ticks " << stats.ticks
-            << " | claims " << stats.claims_emitted
+            << " | gen " << stats.claims_generated
+            << " acc " << stats.claims_accepted
+            << " drop c:" << stats.claims_dropped_claim_budget
+            << " t:" << stats.claims_dropped_time_budget
             << " | cells " << stats.cells_written
-            << " | contention " << stats.contention_cells
-            << " | budget c:" << stats.claim_budget_hits
+            << " | cont " << stats.contention_cells
+            << " | hits c:" << stats.claim_budget_hits
             << " t:" << stats.time_budget_hits
             << " f:" << stats.skipped_failures
             << " | q/esc to quit";
