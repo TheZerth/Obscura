@@ -42,6 +42,9 @@ int main() {
             << " | claims " << stats.claims_emitted
             << " | cells " << stats.cells_written
             << " | contention " << stats.contention_cells
+            << " | budget c:" << stats.claim_budget_hits
+            << " t:" << stats.time_budget_hits
+            << " f:" << stats.skipped_failures
             << " | q/esc to quit";
         status_ptr->text = oss.str();
 

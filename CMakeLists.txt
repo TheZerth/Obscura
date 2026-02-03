@@ -16,6 +16,7 @@ add_library(obscura
         src/term/Renderer.cpp
 
         src/ecology/World.cpp
+        src/ecology/Scheduler.cpp
         src/ecology/CellSettle.cpp
         src/ecology/Instrumentation.cpp
 

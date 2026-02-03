@@ -1,12 +1,20 @@
 #include "obscura/ecology/World.hpp"
-#include "obscura/ecology/LocalView.hpp"
-#include <iterator>
 #include <unordered_map>
 
 namespace obscura {
 
+    World::World() : scheduler_(std::make_unique<RandomScheduler>()) {}
+
+    World::World(std::unique_ptr<Scheduler> scheduler)
+        : scheduler_(scheduler ? std::move(scheduler) : std::make_unique<RandomScheduler>()) {}
+
+    void World::set_scheduler(std::unique_ptr<Scheduler> scheduler) {
+        scheduler_ = scheduler ? std::move(scheduler) : std::make_unique<RandomScheduler>();
+    }
+
     void World::add_agent(std::unique_ptr<Agent> a) {
         agents_.push_back(std::move(a));
+        stats_.ensure_agents(agents_.size());
     }
 
     void World::emit(Claim c) {
@@ -19,19 +27,11 @@ namespace obscura {
         stats_.ticks++;
         claims_.clear();
 
-        // 1) Agents propose claims
-        WorldSize size{screen_.cols(), screen_.rows()};
-        for (auto& a : agents_) {
-            if (!a) continue;
-            ViewSpec spec = a->view_spec(size);
-            LocalView view(screen_, spec.center_x, spec.center_y, spec.radius);
-            std::vector<Claim> agent_claims;
-            a->tick(view, agent_claims);
-            stats_.claims_emitted += static_cast<std::uint64_t>(agent_claims.size());
-            claims_.insert(claims_.end(),
-                           std::make_move_iterator(agent_claims.begin()),
-                           std::make_move_iterator(agent_claims.end()));
+        // 1) Scheduler executes agents and gathers claims
+        if (scheduler_) {
+            scheduler_->execute(*this, agents_, claims_);
         }
+        stats_.claims_emitted = static_cast<std::uint64_t>(claims_.size());
 
         // 2) Settle claims by cell (minimal: bucket by (x,y))
         // For bootstrap we do a simple hash map bucket.
